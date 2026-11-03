@@ -6,6 +6,88 @@ PR — keep the `hyperdx-release-notes` comment marker intact when editing so yo
 edits survive regeneration. Per-package detail lives in each
 `packages/*/CHANGELOG.md`.
 
+## v2.44.0 — 2026-11-03
+
+<!-- hyperdx-release-notes version=2.44.0 inputs=e89103c67384 -->
+
+**Optional webhook emoji and fresher table columns**
+
+Webhooks now take an optional `titleEmoji` setting: set it to `false` and
+notification titles sent through that webhook arrive without the emoji prefix.
+Columns added to a ClickHouse table after HyperDX starts — a new MATERIALIZED
+column, say — are now visible within five minutes, with no restart needed. The
+shared metadata cache previously held each table's column list for the life of
+the process, so a schema change made with `ALTER TABLE` stayed invisible to the
+API indefinitely. Other cached metadata is unchanged.
+
+### ✨ New Features
+
+- **Emoji prefix in webhook titles is now optional**: webhooks take a new
+  `titleEmoji` option, and setting it to `false` sends notification titles
+  through that webhook without the leading emoji — useful where the receiving
+  system renders it poorly or your team would rather read a plain title.
+- **Filter the v2 list alerts endpoint**: the v2 API for listing alerts now
+  accepts tag, search, source and state filters, so you can ask for just the
+  alerts you care about rather than fetching them all and filtering yourself.
+
+### 🔧 Improvements
+
+- **Better compression for newly created tables**: the collector's seed schemas
+  now pin `ZSTD(3)` rather than `ZSTD(1)`, which compresses your data further
+  for a small insert-time CPU cost and no change to read performance. Only
+  tables created from here on are affected; existing tables keep the codecs they
+  already have.
+- **Persisted `_block_number` and `_block_offset` columns detected more
+  reliably**: when a table's `CREATE` query omits them, HyperDX now falls back to
+  the server's MergeTree settings to work out whether they are persisted, so the
+  features that rely on those columns keep working on tables where the setting
+  is applied server-side rather than spelled out in the schema.
+
+### 🐛 Bug Fixes
+
+- **Cached table columns refresh after 5 minutes**: the metadata cache kept each
+  table's `DESCRIBE` result for the life of the process, so columns added with
+  `ALTER TABLE`, such as new MATERIALIZED columns, were not picked up until the
+  API restarted. Cached columns now expire after 5 minutes; other cached
+  metadata is unchanged.
+- **Alerts can no longer be set on tiles that never fire**: dashboard tiles the
+  alert checker does not evaluate — PromQL tiles, and builder tiles with an
+  unsupported display type — now reject alerts outright, instead of accepting
+  one that stayed silent forever. Any such alert already saved is dropped the
+  next time its dashboard is saved, so move it to a tile the checker supports if
+  you were relying on it.
+- **Resolved grouped alerts name the group that resolved**: when a group
+  vanishes from the data, the alert resolves with that group's values filled in
+  for `{{attributes.*}}` in the title and message, and `{{var.*}}` in the webhook
+  body, so you can tell from the notification which group went quiet.
+- **Row details and drill-down work on FIPS-enabled ClickHouse**: looking up a
+  JSON row no longer relies on MD5, which FIPS-enabled deployments refuse to
+  run; the lookup uses SHA256 instead, so row details and drill-down return the
+  row rather than failing.
+- **Legacy `STATUS_CODE_ERROR` spans count as errors on the service map and
+  trace waterfall**: spans from collectors that emit the long status form were
+  not recognised as errored in either view, so both undercounted errors. That
+  value is now counted alongside the short `Error` form.
+
+### 📦 Build / Packaging
+
+- **App builds no longer fail on extensionless Google Fonts URLs**: the app
+  moves to Next.js 16.4.3, fixing the intermittent build failures that happened
+  when Google Fonts returned a font URL without a file extension. Only builds of
+  the app from source are affected.
+
+<!-- hyperdx-package-list -->
+
+### 📦 Package changelogs
+
+- `@hyperdx/api` 2.43.1 → 2.44.0 — [changelog](https://github.com/hyperdxio/hyperdx/blob/main/packages/api/CHANGELOG.md#2440)
+- `@hyperdx/app` 2.43.1 → 2.44.0 — [changelog](https://github.com/hyperdxio/hyperdx/blob/main/packages/app/CHANGELOG.md#2440)
+- `@hyperdx/cli` 0.8.0 → 0.8.1 — [changelog](https://github.com/hyperdxio/hyperdx/blob/main/packages/cli/CHANGELOG.md#081)
+- `@hyperdx/common-utils` 0.33.0 → 0.34.0 — [changelog](https://github.com/hyperdxio/hyperdx/blob/main/packages/common-utils/CHANGELOG.md#0340)
+- `@hyperdx/otel-collector` 2.43.1 → 2.44.0 — [changelog](https://github.com/hyperdxio/hyperdx/blob/main/packages/otel-collector/CHANGELOG.md#2440)
+
+<!-- /hyperdx-package-list -->
+
 ## v2.43.1 — 2026-10-31
 
 <!-- hyperdx-release-notes version=2.43.1 inputs=b9b44254f52c -->
