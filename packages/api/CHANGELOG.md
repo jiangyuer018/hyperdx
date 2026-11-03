@@ -1,5 +1,33 @@
 # @hyperdx/api
 
+## 2.44.0
+
+### Minor Changes
+
+- cd0e9edfa: feat: add optional `titleEmoji` webhook option; `false` removes the emoji prefix from notification titles sent through that webhook
+- c792850fd: feat: filter the v2 list alerts endpoint by tag, search, source and state
+
+### Patch Changes
+
+- 0453aa134: fix: A grouped alert whose group vanishes from the data now resolves with the group's values in `{{attributes.*}}` (alert title and message) and `{{var.*}}` (webhook body)
+- 442d6dfd9: fix: refresh cached table columns after 5 minutes
+
+  The shared metadata cache kept each table's `DESCRIBE` result for the life of
+  the process, so the API did not see columns added with `ALTER TABLE`, such as
+  new MATERIALIZED columns, until it restarted. Cached columns now expire after 5
+  minutes. Other cached metadata is unchanged.
+
+- 0a5237e6c: fix: reject alerts on dashboard tiles the alert checker never evaluates (PromQL
+  tiles, and builder tiles with unsupported display types), and drop them when a
+  dashboard is saved
+- Updated dependencies [cd0e9edfa]
+- Updated dependencies [e2754d203]
+- Updated dependencies [d0dd06fe8]
+- Updated dependencies [41b2b742a]
+- Updated dependencies [442d6dfd9]
+- Updated dependencies [0a5237e6c]
+  - @hyperdx/common-utils@0.34.0
+
 ## 2.43.1
 
 ## 2.43.0

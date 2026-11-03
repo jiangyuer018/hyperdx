@@ -1,5 +1,37 @@
 # @hyperdx/app
 
+## 2.44.0
+
+### Minor Changes
+
+- cd0e9edfa: feat: add optional `titleEmoji` webhook option; `false` removes the emoji prefix from notification titles sent through that webhook
+
+### Patch Changes
+
+- e2754d203: fix: use SHA256 instead of MD5 for JSON row lookup WHERE clauses so row
+  details and drill-down work on FIPS-enabled ClickHouse deployments
+- d0dd06fe8: fix: count legacy STATUS_CODE_ERROR spans as errors on the service map and trace
+  waterfall
+- 41b2b742a: feat: fall back to server MergeTree settings to detect persisted `_block_number` and `_block_offset` columns when the table's CREATE query omits them
+- 442d6dfd9: fix: refresh cached table columns after 5 minutes
+
+  The shared metadata cache kept each table's `DESCRIBE` result for the life of
+  the process, so the API did not see columns added with `ALTER TABLE`, such as
+  new MATERIALIZED columns, until it restarted. Cached columns now expire after 5
+  minutes. Other cached metadata is unchanged.
+
+- 9df8b8d47: fix: bump next to 16.4.3 so builds no longer fail intermittently when Google Fonts returns extensionless font URLs
+- Updated dependencies [0453aa134]
+- Updated dependencies [cd0e9edfa]
+- Updated dependencies [e2754d203]
+- Updated dependencies [d0dd06fe8]
+- Updated dependencies [41b2b742a]
+- Updated dependencies [442d6dfd9]
+- Updated dependencies [0a5237e6c]
+- Updated dependencies [c792850fd]
+  - @hyperdx/api@2.44.0
+  - @hyperdx/common-utils@0.34.0
+
 ## 2.43.1
 
 ### Patch Changes
